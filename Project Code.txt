@@ -1,0 +1,434 @@
+rm(list=ls())
+
+library(readr)
+
+#read/import csv file into R
+CableTVSubscribersData <- read_csv("CableTVSubscribersData.csv")
+
+#determine number of rows
+nrow(CableTVSubscribersData)
+
+#nrow < 2500; no volume restriction needed
+
+summary(CableTVSubscribersData)
+
+#summary shows no NA values
+#double check by running na.omit and recounting rows
+
+CableTVSubscriber2 <- na.omit(CableTVSubscribersData)
+nrow(CableTVSubscriber2)
+
+#new data is same as original data
+#no NA values confirmed
+#use original CableTVSubscriberData for further calculations
+
+#percentages for character types
+#check factors
+
+factor(CableTVSubscribersData$gender)
+#returns levels Male Female
+factor(CableTVSubscribersData$ownHome)
+#returns ownNo ownYes
+factor(CableTVSubscribersData$subscribe)
+#returns subNo subYes 
+#subNo subYes will be our on/off end goal for categories
+factor(CableTVSubscribersData$Segment)
+#returns "Moving up" "Suburb mix" "Travelers" "Urban hip"
+
+library(expss)
+#run percentages
+Percent_Male <- count_if("Male", CableTVSubscribersData$gender)/nrow(CableTVSubscribersData)
+Percent_Male
+Percent_Female <- 1 - Percent_Male
+Percent_Female
+
+Percent_Own <- count_if("ownYes", CableTVSubscribersData$ownHome)/nrow(CableTVSubscribersData)
+Percent_Own
+Percent_OwnNo <- 1 - Percent_Own
+Percent_OwnNo
+
+Percent_Sub <- count_if("subYes", CableTVSubscribersData$subscribe)/nrow(CableTVSubscribersData)
+Percent_Sub
+Percent_SubNo <- 1 - Percent_Sub
+Percent_SubNo
+
+Percent_SegMovUp <- count_if("Moving up", CableTVSubscribersData$Segment)/nrow(CableTVSubscribersData)
+Percent_SegSuburb <- count_if("Suburb mix", CableTVSubscribersData$Segment)/nrow(CableTVSubscribersData)
+Percent_SegTrav <- count_if("Travelers", CableTVSubscribersData$Segment)/nrow(CableTVSubscribersData)
+Percent_SegUrban <- count_if("Urban hip", CableTVSubscribersData$Segment)/nrow(CableTVSubscribersData)
+
+Percent_SegMovUp
+Percent_SegSuburb
+Percent_SegTrav
+Percent_SegUrban
+
+CableTVSubscriber3 <- CableTVSubscriber2
+#assign numbers to levels
+#1 = moving up
+#2 = suburb mix
+#3 = travelers
+#4 = urban hip
+group_seg <- factor(CableTVSubscriber3$Segment)
+#group_seg -> moving up = 1, suburb mix = 2, travelers = 3, urban hip = 4
+levels(group_seg) <- c(1,2,3,4)
+CableTVSubscriber3$Segment <- group_seg
+
+#begin cluster with age, income, kids, segment
+#cannot plot list
+library(stats)
+library(cluster)
+inputs_age_inc_kid_seg <- c("age", "income", "kids", "Segment")
+newCable <- CableTVSubscriber3[inputs_age_inc_kid_seg]
+plot(newCable)
+newCable3 <- kmeans(newCable, 3)
+newCable4 <- kmeans(newCable, 4)
+newCable5 <- kmeans(newCable, 5)
+newCable6 <- kmeans(newCable, 6)
+newCable7 <- kmeans(newCable, 7)
+newCable8 <- kmeans(newCable, 8)
+newCable9 <- kmeans(newCable, 9)
+newCable10 <- kmeans(newCable, 10)
+newCable11 <- kmeans(newCable, 11)
+newCable12 <- kmeans(newCable, 12)
+newCable13 <- kmeans(newCable, 13)
+newCable14 <- kmeans(newCable, 14)
+newCable15 <- kmeans(newCable, 15)
+newCable16 <- kmeans(newCable, 16)
+newCable17 <- kmeans(newCable, 17)
+
+#run elbow method
+k_values <- 3:17
+ss_values <- c(newCable3$tot.withinss, newCable4$tot.withinss, newCable5$tot.withinss, newCable6$tot.withinss, 
+               newCable7$tot.withinss, newCable8$tot.withinss, newCable9$tot.withinss, newCable10$tot.withinss, 
+               newCable11$tot.withinss, newCable12$tot.withinss, newCable13$tot.withinss, newCable14$tot.withinss, 
+               newCable15$tot.withinss, newCable16$tot.withinss, newCable17$tot.withinss)
+plot(k_values, ss_values, type="b", frame=FALSE, main = "Elbow Method", xlab = "Number of Cluster (k)", ylab = "Total within cluster SS")
+
+
+
+#all the pretty colors - plotting clusters
+#run one at a time
+plot(newCable, col=newCable3$cluster)
+plot(newCable, col=newCable4$cluster)
+plot(newCable, col=newCable5$cluster)
+plot(newCable, col=newCable6$cluster)
+plot(newCable, col=newCable7$cluster)
+plot(newCable, col=newCable8$cluster)
+plot(newCable, col=newCable9$cluster)
+plot(newCable, col=newCable10$cluster)
+plot(newCable, col=newCable11$cluster)
+plot(newCable, col=newCable12$cluster)
+plot(newCable, col=newCable13$cluster)
+plot(newCable, col=newCable14$cluster)
+plot(newCable, col=newCable15$cluster)
+plot(newCable, col=newCable16$cluster)
+plot(newCable, col=newCable17$cluster)
+
+#silhouette method
+sil_newCable3 <- mean(silhouette(newCable3$cluster, dist(newCable))[,3])
+sil_newCable4 <- mean(silhouette(newCable4$cluster, dist(newCable))[,3])
+sil_newCable5 <- mean(silhouette(newCable5$cluster, dist(newCable))[,3])
+sil_newCable6 <- mean(silhouette(newCable6$cluster, dist(newCable))[,3])
+sil_newCable7 <- mean(silhouette(newCable7$cluster, dist(newCable))[,3])
+sil_newCable8 <- mean(silhouette(newCable8$cluster, dist(newCable))[,3])
+sil_newCable9 <- mean(silhouette(newCable9$cluster, dist(newCable))[,3])
+sil_newCable10 <- mean(silhouette(newCable10$cluster, dist(newCable))[,3])
+sil_newCable11 <- mean(silhouette(newCable11$cluster, dist(newCable))[,3])
+sil_newCable12 <- mean(silhouette(newCable12$cluster, dist(newCable))[,3])
+sil_newCable13 <- mean(silhouette(newCable13$cluster, dist(newCable))[,3])
+sil_newCable14 <- mean(silhouette(newCable14$cluster, dist(newCable))[,3])
+sil_newCable15 <- mean(silhouette(newCable15$cluster, dist(newCable))[,3])
+sil_newCable16 <- mean(silhouette(newCable16$cluster, dist(newCable))[,3])
+sil_newCable17 <- mean(silhouette(newCable17$cluster, dist(newCable))[,3])
+silhouette_values <- c(sil_newCable3, sil_newCable4, sil_newCable5, sil_newCable6, sil_newCable7, 
+                       sil_newCable8, sil_newCable9, sil_newCable10, sil_newCable11, sil_newCable12, 
+                       sil_newCable13, sil_newCable14, sil_newCable15, sil_newCable16, sil_newCable17)
+plot(k_values, silhouette_values, type = "b", frame = FALSE, main  = "Silhouette Method", xlab = "Number of Cluster (k)", ylab = "Silhouette Values")
+#appears that 3 clusters is best using this method
+
+#best fit using between/within
+ratioNewCable3 <- newCable3$betweenss/newCable3$tot.withinss
+ratioNewCable4 <- newCable4$betweenss/newCable4$tot.withinss
+ratioNewCable5 <- newCable5$betweenss/newCable5$tot.withinss
+ratioNewCable6 <- newCable6$betweenss/newCable6$tot.withinss
+ratioNewCable7 <- newCable7$betweenss/newCable7$tot.withinss
+ratioNewCable8 <- newCable8$betweenss/newCable8$tot.withinss
+ratioNewCable9 <- newCable9$betweenss/newCable9$tot.withinss
+ratioNewCable10 <- newCable10$betweenss/newCable10$tot.withinss
+ratioNewCable11 <- newCable11$betweenss/newCable11$tot.withinss
+ratioNewCable12 <- newCable12$betweenss/newCable12$tot.withinss
+ratioNewCable13 <- newCable13$betweenss/newCable13$tot.withinss
+ratioNewCable14 <- newCable14$betweenss/newCable14$tot.withinss
+ratioNewCable15 <- newCable15$betweenss/newCable15$tot.withinss
+ratioNewCable16 <- newCable16$betweenss/newCable16$tot.withinss
+ratioNewCable17 <- newCable17$betweenss/newCable17$tot.withinss
+
+ratioNewCable3
+ratioNewCable4
+ratioNewCable5
+ratioNewCable6
+ratioNewCable7
+ratioNewCable8
+ratioNewCable9
+ratioNewCable10
+ratioNewCable11
+ratioNewCable12
+ratioNewCable13
+ratioNewCable14
+ratioNewCable15
+ratioNewCable16
+ratioNewCable17
+#ratio calls for 3 clusters
+
+
+#secondary cluster method - using PCA
+CableTV4 <- subset(CableTVSubscriber3, select = c(1:5,7,6))
+CableTV4$subscribe <- factor(CableTV4$subscribe, c("subNo","subYes"))
+CableTV4$subscribe <- ifelse(CableTV4$subscribe == "subNo", 1,2)
+CableTV4$gender <- ifelse(CableTV4$gender == "Female", 0,1)
+CableTV4$ownHome <- ifelse(CableTV4$ownHome == "ownNo", 0,1)
+CableTV4$Segment <- as.double(CableTV4$Segment)
+head(CableTV4)
+round(cor(CableTV4[,1:6]),2)
+pc <- princomp(CableTV4[,1:6], cor = T, scores = T)
+summary(pc)
+plot(pc, type = "lines")
+biplot(pc)
+#the biplot seems to show three clear clusters
+library(rgl)
+
+#for full viz run lines 200 thru 207 all at once
+plot3d(pc$scores[,1:6], col=CableTV4$subscribe, size = 8)
+text3d(pc$scores[,1:6],texts=rownames(CableTV4))
+text3d(pc$loadings[,1:6], texts=rownames(pc$loadings), col="red")
+coords <- NULL
+for (i in 1:nrow(pc$loadings)) {
+  coords <- rbind(coords, rbind(c(0,0,0),pc$loadings[i,1:6]))
+}
+lines3d(coords, col="red", lwd=4)
+
+cl <- kmeans(CableTV4[,1:7],2)
+CableTV4$cluster <- as.factor(cl$cluster)
+plot3d(pc$scores[,1:6], col=CableTV4$cluster, main = "kmeans")
+plot3d(pc$scores[,1:6], col=CableTV4$subscribe, main = "actual")
+
+#in next table cluster = predicted, subscribe = actual
+clusterTable <- with(CableTV4,table(cluster,subscribe))
+library(caret)
+precision(clusterTable)
+recall(clusterTable)
+#overall accuracy
+sum(diag(clusterTable))/sum(clusterTable)
+
+
+#create information for shopping basket rules -> may not be useful
+#create binary kids vectors
+kids0 <- ifelse(CableTVSubscriber2$kids == 0, 1,0)
+kids1 <- ifelse(CableTVSubscriber2$kids == 1, 1,0)
+kids2 <- ifelse(CableTVSubscriber2$kids == 2, 1,0)
+kids3 <- ifelse(CableTVSubscriber2$kids == 3, 1,0)
+kids4 <- ifelse(CableTVSubscriber2$kids == 4, 1,0)
+kids5 <- ifelse(CableTVSubscriber2$kids == 5, 1,0)
+kids6 <- ifelse(CableTVSubscriber2$kids == 6, 1,0)
+kids7 <- ifelse(CableTVSubscriber2$kids == 7, 1,0)
+#create kids matrix for binding later
+kidsmatrix <- cbind(kids0, kids1, kids2, kids3, kids4, kids5, kids6, kids7)
+
+#create binary from binary
+#male = 1, female = 0
+#ownYes = 1, no = 0
+#subscribeYes = 1, no = 0
+group_Male <- ifelse(CableTVSubscriber2$gender == "Male",1,0)
+group_Female <- ifelse(CableTVSubscriber2$gender == "Feale",1,0)
+group_ownYes <- ifelse(CableTVSubscriber2$ownHome == "ownYes",1,0)
+group_ownNo <- ifelse(CableTVSubscriber2$ownHome == "ownNo",1,0)
+group_subsYes <- ifelse(CableTVSubscriber2$subscribe == "subYes",1,0)
+group_subsNo <- ifelse(CableTVSubscriber2$subscribe == "subNo",1,0)
+#create matrix for later
+groupmatrix <- cbind(group_Male, group_Female, group_ownYes, group_ownNo, group_subsYes, group_subsNo)
+
+#create binary from segment
+group_seg_MovingUp <- ifelse(CableTVSubscriber2$Segment == "Moving up",1,0)
+group_seg_SubMix <- ifelse(CableTVSubscriber2$Segment == "Suburb mix",1,0)
+group_seg_Travelers <- ifelse(CableTVSubscriber2$Segment == "Travelers",1,0)
+group_seg_UrbanHip <- ifelse(CableTVSubscriber2$Segment == "Urban hip",1,0)
+#create matrix for later
+segmatrix <- cbind(group_seg_MovingUp, group_seg_SubMix, group_seg_Travelers, group_seg_UrbanHip)
+
+#create bins for binary age
+ageUnder25 <- ifelse(CableTVSubscriber2$age <= 25, 1,0)
+age25to35 <- ifelse(CableTVSubscriber2$age >25 & CableTVSubscriber2$age <= 35, 1,0)
+age35to45 <- ifelse(CableTVSubscriber2$age >35 & CableTVSubscriber2$age <= 45, 1,0)
+age45to55 <- ifelse(CableTVSubscriber2$age >45 & CableTVSubscriber2$age <= 55, 1,0)
+age55to65 <- ifelse(CableTVSubscriber2$age >55 & CableTVSubscriber2$age <= 65, 1,0)
+ageOver65 <- ifelse(CableTVSubscriber2$age > 65, 1,0)
+#age matrix
+agematrix <- cbind(ageUnder25, age25to35, age35to45, age45to55, age55to65, ageOver65)
+
+#create bins for binary income
+incomeUnder10K <- ifelse(CableTVSubscriber2$income <=10000,1,0)
+income10to40K <- ifelse(CableTVSubscriber2$income >10000 & CableTVSubscriber2$income <= 40000,1,0)
+income40to70K <- ifelse(CableTVSubscriber2$income >40000 & CableTVSubscriber2$income <= 70000,1,0)
+income70to100K <- ifelse(CableTVSubscriber2$income >70000 & CableTVSubscriber2$income <= 100000,1,0)
+incomeOver100K <- ifelse(CableTVSubscriber2$income >100000,1,0)
+#income matrix
+incomeMatrix <- cbind(incomeUnder10K, income10to40K, income40to70K, income70to100K, incomeOver100K)
+library(arules)
+library(arulesViz)
+
+matrixCableSubscriber <- cbind(groupmatrix, agematrix, incomeMatrix, segmatrix, kidsmatrix)
+logicalBasket <- apply(matrixCableSubscriber,2,as.logical)
+matrixCableSubRules <- as(as.matrix(logicalBasket), "transactions")
+
+#run shopping basket
+
+summary(matrixCableSubRules)
+
+rules <- apriori(matrixCableSubRules, parameter = list(support = .03, confidence = .8))
+rules
+inspect(head(rules, n=10, by = "lift"))
+
+#apply rules to dataframe to sort by RHS -> easy to read results of givens
+rules_info <-
+  data.frame(
+    LHS = labels(lhs(rules)), 
+    RHS = labels(rhs(rules)),          
+    quality(rules),
+    stringsAsFactors = FALSE
+  )
+rules_info[order(rules_info$RHS),] #change after $ to column title to reorder
+
+#subscriberYes rules
+subscriberYesRules <- rules_info[rules_info$RHS == "{group_subYes}"]
+#there are no rules for Yes subscribers (no rules for no Subscribers, either)
+
+#begin supervised learning
+library(party)
+
+CableTV5 <- subset(CableTVSubscriber2, select = c(1:5,7,6))
+CableTV5$gender <- factor(CableTV5$gender, c("Female", "Male"))
+CableTV5$ownHome <- factor(CableTV5$ownHome, c("ownNo", "ownYes"))
+CableTV5$Segment <- factor(CableTV5$Segment, c("Moving up", "Suburb mix", "Travelers", "Urban hip"))
+CableTV5$subscribe <- factor(CableTV5$subscribe, c("subNo", "subYes"))
+head(CableTV5)
+
+#train 90% test 10% no replacement
+sampleSize <- sample(nrow(CableTV5), floor(.9*nrow(CableTV5)), replace = F, prob = NULL)
+trainCableTV <- CableTV5[sampleSize,]
+testCableTV <- CableTV5[-sampleSize,]
+
+#decision tree using all variable to predict subscribe
+cableTree <- ctree(subscribe ~ ., data = trainCableTV)
+plot(cableTree)
+
+#run training data
+CableTreeTrain <- predict(cableTree, trainCableTV)
+summary(CableTreeTrain)
+predictCableTreeTrain <- table(trainCableTV$subscribe, CableTreeTrain)
+predictCableTreeTrain
+precision(predictCableTreeTrain)
+recall(predictCableTreeTrain)
+#accuracy
+sum(diag(predictCableTreeTrain))/sum(predictCableTreeTrain)
+
+#run test data
+CableTreeTest <- predict(cableTree, testCableTV)
+summary(CableTreeTest)
+predictCableTreeTest <- table(testCableTV$subscribe, CableTreeTest)
+predictCableTreeTest
+precision(predictCableTreeTest)
+recall(predictCableTreeTest)
+#accuracy
+sum(diag(predictCableTreeTest))/sum(predictCableTreeTest)
+
+#logistic regression using same train/test sets - rename as train2 and test 2 for reference
+#save test2$subscribe to response.test; change test2$subscribe to null
+head(CableTVSubscriber2)
+train2 <- trainCableTV
+head(train2)
+test2 <- testCableTV
+response.test <- test2$subscribe
+test2$subscribe <- as.null(test2$subscribe)
+
+library(stats)
+model <- glm(subscribe ~ ., family = binomial, data = train2)
+summary(model)
+predicted.probability <- predict(model, newdata = data.frame(test2), type = "response")
+predict.binary.output <- ifelse(predicted.probability >= .24,"subYes","subNo")
+#.24 used because rounding at any % higher was causing all predictions to subNo
+# resulting in error in precision and recall
+logTableTest <- table(predict.binary.output, response.test)
+logTableTest
+precision(logTableTest)
+recall(logTableTest)
+#accuracy
+sum(diag(logTableTest))/sum(logTableTest)
+
+#10fold 
+library(pROC)
+library(MLmetrics)
+ctrl <- trainControl(method = "cv", number = 10, savePredictions = T, classProbs = T, summaryFunction = twoClassSummary)
+mod <- train(subscribe ~ ., method = 'C5.0Tree', metric="ROC",data = CableTV5,trControl = ctrl)
+names(mod)
+mod$results
+mod$resample
+summary(mod)
+
+ctrl <- trainControl(method = "cv", number = 10, savePredictions = T, classProbs = T, summaryFunction = prSummary)
+mod2 <- train(subscribe ~ ., method = 'C5.0Tree', metric="ROC",data = CableTV5,trControl = ctrl)
+names(mod2)
+mod2$results
+mod2$resample
+summary(mod2)
+
+
+#svm
+#read all tables as predicted rows; actual columns
+library(e1071)
+model <- svm(subscribe~., data=CableTV5)
+print(model)
+modelTable <- table(model$fitted, CableTV5$subscribe)
+modelTable
+
+model1 <- svm(subscribe~., data=CableTV5, kernel = "polynomial")
+print(model1)
+model1Table <- table(model1$fitted, CableTV5$subscribe)
+model1Table
+
+model2 <- svm(subscribe~., data=CableTV5, kernel = "sigmoid")
+print(model2)
+model2Table <- table(model2$fitted, CableTV5$subscribe)
+model2Table
+
+#for model
+precision(modelTable)
+recall(modelTable)
+#accuracy
+sum(diag(modelTable))/sum(modelTable)
+
+#for model1
+precision(model1Table)
+recall(model1Table)
+#accuracy
+sum(diag(model1Table))/sum(model1Table)
+
+#for model2
+precision(model2Table)
+recall(model2Table)
+#accuracy
+sum(diag(model2Table))/sum(model2Table)
+#sigmoid is giving the most realistic output
+
+#NaiveBayes
+x <- subset(trainCableTV, select = -subscribe)
+y <- trainCableTV$subscribe
+model_NB <- naiveBayes(x,y)
+print(model_NB)
+NB_prediction <- predict(model_NB, testCableTV)
+table(NB_prediction)
+NBoutcomes <- table(NB_prediction, testCableTV$subscribe)
+
+precision(NBoutcomes)
+recall(NBoutcomes)
+#accuracy
+sum(diag(NBoutcomes))/sum(NBoutcomes)
